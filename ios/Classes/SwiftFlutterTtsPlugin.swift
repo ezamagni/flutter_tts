@@ -18,6 +18,7 @@ public class SwiftFlutterTtsPlugin: NSObject, FlutterPlugin, AVSpeechSynthesizer
   var awaitSynthCompletion: Bool = false
   var speakResult: FlutterResult? = nil
   var synthResult: FlutterResult? = nil
+  var handleAudioSessionActivation: Bool = true
     
 
   var channel = FlutterMethodChannel()
@@ -121,6 +122,10 @@ public class SwiftFlutterTtsPlugin: NSObject, FlutterPlugin, AVSpeechSynthesizer
       let audioOptions = args[iosAudioCategoryOptionsKey] as? Array<String>
       let audioModes = args[iosAudioModeKey] as? String
       self.setAudioCategory(audioCategory: audioCategory, audioOptions: audioOptions, audioMode: audioModes, result: result)
+      break
+    case "setHandleAudioSessionActivation":
+      let value: Bool = call.arguments as! Bool
+      self.handleAudioSessionActivation = value
       break
     default:
       result(FlutterMethodNotImplemented)
@@ -356,7 +361,7 @@ public class SwiftFlutterTtsPlugin: NSObject, FlutterPlugin, AVSpeechSynthesizer
   }
 
   public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-    if shouldDeactivateAndNotifyOthers(audioSession) {
+    if handleAudioSessionActivation && shouldDeactivateAndNotifyOthers(audioSession) {
       do {
         try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
       } catch {

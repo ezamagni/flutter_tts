@@ -136,6 +136,9 @@ class FlutterTts {
   VoidCallback? cancelHandler;
   ProgressHandler? progressHandler;
   ErrorHandler? errorHandler;
+  
+  bool _handleAudioSessionActivation = true;
+  bool get handleAudioSessionActivation => _handleAudioSessionActivation;
 
   FlutterTts() {
     _channel.setMethodCallHandler(platformCallHandler);
@@ -259,6 +262,13 @@ class FlutterTts {
 
   /// [Future] which invokes the platform specific method for stop
   Future<dynamic> stop() async => _channel.invokeMethod('stop');
+
+  /// ***iOS, and macOS supported only***
+  Future<dynamic> setHandleAudioSessionActivation(bool value) async {
+    if (_handleAudioSessionActivation == value) return;
+    _handleAudioSessionActivation = value;
+    _channel.invokeMethod('setHandleAudioSessionActivation', value);
+  }
 
   /// [Future] which invokes the platform specific method for getLanguages
   /// Android issues with API 21 & 22
